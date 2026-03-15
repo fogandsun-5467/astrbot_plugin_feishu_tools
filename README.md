@@ -12,7 +12,6 @@
 | `feishu_chat` | 群聊管理 - 公告读写、创建群、添加成员 |
 | `feishu_doc` | 文档操作 - 读写飞书文档、管理评论 |
 | `feishu_drive` | 云盘管理 - 文件夹浏览、创建、移动、删除 |
-| `feishu_wiki` | 知识库导航 - 查看知识库、创建/移动页面 |
 | `feishu_task` | 任务管理 - 创建任务/子任务、评论、附件 |
 | `feishu_reaction` | 表情回应 - 添加/移除/列出消息表情 |
 | `feishu_perm` | 权限管理 - 管理文档/文件协作者权限 |
@@ -34,7 +33,7 @@
 
 ```json
 {
-  "enabled_tools": ["message", "chat", "doc", "drive", "wiki", "task", "reaction", "perm", "urgent"],
+  "enabled_tools": ["message", "chat", "doc", "drive", "task", "reaction", "perm", "urgent"],
   "message_tool": {
     "enabled": true,
     "max_list_size": 50
@@ -88,7 +87,6 @@
 - `task:task:readonly` - 读取任务
 
 ### 其他权限（按需）
-- `wiki:wiki` - 知识库操作
 - `im:message.reactions:write_only` - 表情回应
 - `im:message.urgent` - 紧急通知
 - `drive:permission` - 权限管理
@@ -146,7 +144,6 @@ astrbot_plugin_feishu_tools/
         ├── chat.py         # 群聊工具
         ├── doc.py          # 文档工具
         ├── drive.py        # 云盘工具
-        ├── wiki.py         # 知识库工具
         ├── task.py         # 任务工具
         ├── reaction.py     # 表情工具
         ├── perm.py         # 权限工具
