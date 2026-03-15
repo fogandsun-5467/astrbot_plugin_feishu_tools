@@ -1,5 +1,6 @@
 import json
 import asyncio
+import time
 from typing import Any, Dict, Optional
 
 import aiohttp
@@ -74,7 +75,6 @@ class FeishuClient:
         json_data: Optional[Dict] = None,
         retry_count: int = 3,
     ) -> Dict:
-        import time
         token = await self.get_tenant_access_token()
         url = f"{self.domain}/open-apis/{path}"
         session = await self._get_session()
