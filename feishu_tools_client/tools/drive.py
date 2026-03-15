@@ -95,7 +95,7 @@ def create_drive_tool(client: FeishuClient) -> FuncTool:
             },
             "required": ["action"],
         },
-        description="飞书云空间文件管理工具。支持列出文件、获取元数据、创建文件夹、复制/移动/删除文件。\n\n"
+        description="【飞书/Feishu/Lark云盘工具】当用户提到飞书云盘、云空间、文件夹、文件管理、上传文件、移动文件时使用此工具。支持列出文件、获取元数据、创建文件夹、复制/移动/删除文件。\n\n"
         "Actions:\n"
         "- list：列出文件夹下的文件。不提供 folder_token 时获取根目录清单\n"
         "- get_meta：批量获取文档元信息。使用 request_docs 数组参数，格式：[{doc_token: '...', doc_type: 'sheet'}]\n"

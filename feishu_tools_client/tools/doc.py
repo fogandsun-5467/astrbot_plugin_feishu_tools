@@ -102,7 +102,7 @@ def create_doc_tool(client: FeishuClient) -> FuncTool:
             },
             "required": ["action"],
         },
-        description="飞书文档读写工具。支持读取、写入、创建文档，以及 Block 和评论管理。\n\n"
+        description="【飞书/Feishu/Lark文档工具】当用户提到飞书文档、创建文档、编辑文档、写入文档、文档内容时使用此工具。支持读取、写入、创建文档，以及 Block 和评论管理。\n\n"
         "Actions:\n"
         "- read：读取文档内容，返回纯文本和元信息\n"
         "- write：覆盖写入文档内容（Markdown 格式）\n"

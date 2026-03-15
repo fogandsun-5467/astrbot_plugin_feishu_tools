@@ -56,7 +56,7 @@ def create_wiki_tool(client: FeishuClient) -> FuncTool:
             },
             "required": ["action"],
         },
-        description="Feishu knowledge base navigation. Use when user mentions knowledge base, wiki, or wiki links. Note: wiki content is read/written via feishu_doc tool.",
+        description="【飞书/Feishu/Lark知识库工具】当用户提到飞书知识库、Wiki、知识空间时使用此工具。支持浏览知识库空间、管理知识库节点。注意：知识库内容读写使用 feishu_doc 工具。",
         handler=handler,
     )
 

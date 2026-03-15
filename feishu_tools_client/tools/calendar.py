@@ -167,7 +167,7 @@ def create_calendar_tool(client: FeishuClient) -> FuncTool:
             },
             "required": ["action"],
         },
-        description="飞书日历工具。支持创建/管理日历和日程事件。\n\n"
+        description="【飞书/Feishu/Lark日历工具】当用户提到飞书日历、日程、会议、安排时间、创建日程时使用此工具。支持创建/管理日历和日程事件。\n\n"
         "Actions:\n"
         "- create：创建日历，需要 summary\n"
         "- get：获取日历信息，需要 calendar_id\n"

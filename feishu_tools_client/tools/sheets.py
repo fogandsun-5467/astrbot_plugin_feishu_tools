@@ -170,7 +170,7 @@ def create_sheets_tool(client: FeishuClient) -> FuncTool:
             },
             "required": ["action"],
         },
-        description="飞书电子表格工具。支持创建/管理电子表格和工作表、读写单元格数据。\n\n"
+        description="【飞书/Feishu/Lark电子表格工具】当用户提到飞书电子表格、Spreadsheet、Sheet、单元格、读写数据时使用此工具。支持创建/管理电子表格和工作表、读写单元格数据。\n\n"
         "Actions:\n"
         "- get：获取电子表格信息，需要 spreadsheet_token\n"
         "- create：创建电子表格，需要 title\n"

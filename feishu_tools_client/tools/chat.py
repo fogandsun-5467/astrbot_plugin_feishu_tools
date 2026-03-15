@@ -111,7 +111,7 @@ def create_chat_tool(client: FeishuClient) -> FuncTool:
             },
             "required": ["action"],
         },
-        description="Feishu chat operations including group announcement and group chat management. Use when user mentions group announcement, creating groups, or managing group members.",
+        description="【飞书/Feishu/Lark群聊工具】当用户提到飞书群聊、群公告、创建群、添加成员、群管理时使用此工具。支持群公告读写、创建群聊、管理群成员。",
         handler=handler,
     )
 

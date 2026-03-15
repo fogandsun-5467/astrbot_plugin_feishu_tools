@@ -137,7 +137,7 @@ def create_task_tool(client: FeishuClient) -> FuncTool:
             },
             "required": ["action"],
         },
-        description="飞书任务管理工具。支持创建、查询、更新、删除任务和任务清单。\n\n"
+        description="【飞书/Feishu/Lark任务工具】当用户提到飞书任务、待办事项、创建任务、任务清单、完成任务时使用此工具。支持创建、查询、更新、删除任务和任务清单。\n\n"
         "Actions:\n"
         "- create：创建任务，需要 summary\n"
         "- get：获取任务详情，需要 task_guid\n"

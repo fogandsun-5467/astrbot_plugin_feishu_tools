@@ -51,7 +51,7 @@ def create_reaction_tool(client: FeishuClient) -> FuncTool:
             },
             "required": ["action", "message_id"],
         },
-        description="Feishu message emoji reactions. Use when user mentions emoji, reaction, thumbsup, like, or responding to messages with emoji.",
+        description="【飞书/Feishu/Lark表情回应工具】当用户提到飞书表情、点赞、回应、emoji时使用此工具。支持添加、删除、列出消息表情回应。",
         handler=handler,
     )
 

@@ -179,7 +179,7 @@ def create_bitable_tool(client: FeishuClient) -> FuncTool:
             },
             "required": ["action"],
         },
-        description="飞书多维表格工具。支持创建/查询多维表格、管理数据表、记录、字段和视图。\n\n"
+        description="【飞书/Feishu/Lark多维表格工具】当用户提到飞书多维表格、Bitable、Base、数据表、记录、字段时使用此工具。支持创建/查询多维表格、管理数据表、记录、字段和视图。\n\n"
         "Actions:\n"
         "- create：创建多维表格，需要 name\n"
         "- get：获取多维表格信息，需要 app_token\n"

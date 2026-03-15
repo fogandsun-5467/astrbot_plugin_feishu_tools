@@ -61,7 +61,7 @@ def create_perm_tool(client: FeishuClient) -> FuncTool:
             },
             "required": ["action", "token", "type"],
         },
-        description="Feishu permission management for documents and files. Use when user mentions sharing, permissions, or collaborators. Note: This tool handles sensitive operations.",
+        description="【飞书/Feishu/Lark权限工具】当用户提到飞书权限、分享、协作者、共享时使用此工具。支持管理文档/文件协作者权限。注意：此工具涉及敏感操作，默认禁用。",
         handler=handler,
     )
 

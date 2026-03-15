@@ -101,7 +101,7 @@ def create_message_tool(client: FeishuClient) -> FuncTool:
             },
             "required": ["action"],
         },
-        description="飞书消息工具。支持获取消息、列出聊天消息、发送消息、回复消息。\n\n"
+        description="【飞书/Feishu/Lark消息工具】当用户提到飞书消息、聊天记录、发送消息、回复消息时使用此工具。支持获取消息、列出聊天消息、发送消息、回复消息。\n\n"
         "Actions:\n"
         "- get：获取单条消息详情，需要 message_id\n"
         "- list：列出聊天中的消息，需要 chat_id\n"

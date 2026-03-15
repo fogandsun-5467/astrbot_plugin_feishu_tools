@@ -40,7 +40,7 @@ def create_urgent_tool(client: FeishuClient) -> FuncTool:
             },
             "required": ["message_id", "user_ids"],
         },
-        description="Feishu urgent message (buzz) notifications. Use when user mentions urgent, buzz, remind, or escalation for messages. Note: The message must already be sent before sending urgent notification.",
+        description="【飞书/Feishu/Lark紧急通知工具】当用户提到飞书紧急通知、加急、提醒、电话通知、短信通知时使用此工具。支持发送应用内/短信/电话紧急通知。注意：消息必须已发送才能加急。",
         handler=handler,
     )
 
