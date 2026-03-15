@@ -11,6 +11,7 @@ from .tools import (
     create_sheets_tool,
     create_task_tool,
     create_urgent_tool,
+    create_wiki_tool,
 )
 
 __all__ = [
@@ -26,4 +27,5 @@ __all__ = [
     "create_sheets_tool",
     "create_task_tool",
     "create_urgent_tool",
+    "create_wiki_tool",
 ]

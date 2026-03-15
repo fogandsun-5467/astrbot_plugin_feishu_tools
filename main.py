@@ -18,6 +18,7 @@ from .feishu_tools_client.tools import (
     create_sheets_tool,
     create_task_tool,
     create_urgent_tool,
+    create_wiki_tool,
 )
 
 
@@ -83,6 +84,7 @@ class FeishuToolsPlugin(Star):
                 "bitable",
                 "calendar",
                 "sheets",
+                "wiki",
                 "reaction",
                 "perm",
                 "urgent",
@@ -98,6 +100,7 @@ class FeishuToolsPlugin(Star):
             "bitable": lambda: create_bitable_tool(self.feishu_client),
             "calendar": lambda: create_calendar_tool(self.feishu_client),
             "sheets": lambda: create_sheets_tool(self.feishu_client),
+            "wiki": lambda: create_wiki_tool(self.feishu_client),
             "reaction": lambda: create_reaction_tool(self.feishu_client),
             "perm": lambda: create_perm_tool(self.feishu_client),
             "urgent": lambda: create_urgent_tool(self.feishu_client),

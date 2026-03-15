@@ -16,6 +16,7 @@
 | `feishu_bitable` | 多维表格 - 创建/管理多维表格、数据表、记录、字段 |
 | `feishu_calendar` | 日历管理 - 创建/管理日历和日程事件 |
 | `feishu_sheets` | 电子表格 - 创建/管理工作表、读写单元格 |
+| `feishu_wiki` | 知识库 - 浏览知识库空间、管理知识库节点 |
 | `feishu_reaction` | 表情回应 - 添加/移除/列出消息表情 |
 | `feishu_perm` | 权限管理 - 管理文档/文件协作者权限 |
 | `feishu_urgent` | 紧急通知 - 发送应用内/短信/电话通知 |
@@ -36,7 +37,7 @@
 
 ```json
 {
-  "enabled_tools": ["message", "chat", "doc", "drive", "task", "bitable", "calendar", "sheets", "reaction", "urgent"],
+  "enabled_tools": ["message", "chat", "doc", "drive", "task", "bitable", "calendar", "sheets", "wiki", "reaction", "urgent"],
   "message_tool": {
     "enabled": true,
     "max_list_size": 50
