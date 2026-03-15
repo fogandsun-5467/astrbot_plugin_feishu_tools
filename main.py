@@ -45,7 +45,9 @@ class FeishuToolsPlugin(Star):
 
         lark_adapter = None
         for platform in self.context.platform_manager.platform_insts:
-            if platform.meta().name == "lark":
+            platform_meta = platform.meta()
+            logger.debug(f"[FeishuTools] 检查平台: {platform_meta.name}")
+            if platform_meta.name == "lark":
                 lark_adapter = platform
                 break
 
@@ -73,8 +75,14 @@ class FeishuToolsPlugin(Star):
         except Exception as e:
             logger.error(f"[FeishuTools] 初始化飞书客户端失败: {e}")
 
+    @filter.on_platform_loaded()
+    async def on_platform_loaded(self):
+        logger.info("[FeishuTools] 平台加载完成，开始初始化飞书客户端")
+        await self._init_feishu_client()
+
     @filter.on_astrbot_loaded()
     async def on_astrbot_loaded(self):
+        logger.info("[FeishuTools] AstrBot 加载完成，尝试初始化飞书客户端")
         await self._init_feishu_client()
 
     async def _register_tools(self):
