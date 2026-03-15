@@ -3,8 +3,8 @@ from astrbot.api.event import filter, AstrMessageEvent
 from astrbot.api.star import Context, Star, register
 from astrbot.core.provider.func_tool_manager import FuncTool
 
-from feishu import FeishuClient
-from feishu.tools import (
+from feishu_tools_client import FeishuClient
+from feishu_tools_client.tools import (
     create_chat_tool,
     create_doc_tool,
     create_drive_tool,
