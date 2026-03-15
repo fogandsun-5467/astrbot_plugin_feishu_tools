@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from astrbot.api import AstrBotConfig, logger
 from astrbot.api.event import filter, AstrMessageEvent
 from astrbot.api.star import Context, Star, register
@@ -31,6 +33,7 @@ class FeishuToolsPlugin(Star):
         self.feishu_client: FeishuClient | None = None
         self._registered_tools: list[FuncTool] = []
 
+    @filter.platform_adapter_type(filter.PlatformAdapterType.LARK)
     async def initialize(self):
         lark_adapter = None
         for platform in self.context.platform_manager.platform_insts:
