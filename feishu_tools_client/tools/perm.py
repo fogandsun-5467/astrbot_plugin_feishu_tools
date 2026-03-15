@@ -61,7 +61,14 @@ def create_perm_tool(client: FeishuClient) -> FuncTool:
             },
             "required": ["action", "token", "type"],
         },
-        description="【飞书/Feishu/Lark权限工具】当用户提到飞书权限、分享、协作者、共享时使用此工具。支持管理文档/文件协作者权限。注意：此工具涉及敏感操作，默认禁用。",
+        description="【飞书/Feishu/Lark权限工具】当用户提到飞书权限、分享、协作者、共享时使用此工具。支持管理文档/文件协作者权限。\n\n"
+        "Actions:\n"
+        "- list：列出协作者列表，需要 token、type\n"
+        "- add：添加协作者，需要 token、type、member_type、member_id、perm\n"
+        "- remove：移除协作者，需要 token、type、member_type、member_id\n\n"
+        "【perm 权限级别】view（查看）、edit（编辑）、full_access（完全访问）\n"
+        "【member_type】openid、userid、email、unionid、opendepartmentid、openchat\n"
+        "【注意】此工具涉及敏感操作，默认禁用。",
         handler=handler,
     )
 

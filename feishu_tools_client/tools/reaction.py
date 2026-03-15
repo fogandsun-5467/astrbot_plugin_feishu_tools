@@ -51,7 +51,12 @@ def create_reaction_tool(client: FeishuClient) -> FuncTool:
             },
             "required": ["action", "message_id"],
         },
-        description="【飞书/Feishu/Lark表情回应工具】当用户提到飞书表情、点赞、回应、emoji时使用此工具。支持添加、删除、列出消息表情回应。",
+        description="【飞书/Feishu/Lark表情回应工具】当用户提到飞书表情、点赞、回应、emoji时使用此工具。支持添加、删除、列出消息表情回应。\n\n"
+        "Actions:\n"
+        "- add：添加表情回应，需要 message_id、emoji_type\n"
+        "- remove：删除表情回应，需要 message_id、reaction_id\n"
+        "- list：列出消息的表情回应，需要 message_id\n\n"
+        "【emoji_type】常用值：THUMBSUP（👍）、HEART（❤️）、SMILE（😊）、FIRE（🔥）、CLAP（👏）、OK（👌）、CHECK（✅）、CROSS（❌）",
         handler=handler,
     )
 

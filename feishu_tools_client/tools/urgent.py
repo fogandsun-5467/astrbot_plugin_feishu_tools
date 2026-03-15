@@ -40,7 +40,15 @@ def create_urgent_tool(client: FeishuClient) -> FuncTool:
             },
             "required": ["message_id", "user_ids"],
         },
-        description="【飞书/Feishu/Lark紧急通知工具】当用户提到飞书紧急通知、加急、提醒、电话通知、短信通知时使用此工具。支持发送应用内/短信/电话紧急通知。注意：消息必须已发送才能加急。",
+        description="【飞书/Feishu/Lark紧急通知工具】当用户提到飞书紧急通知、加急、提醒、电话通知、短信通知时使用此工具。支持发送应用内/短信/电话紧急通知。\n\n"
+        "参数说明：\n"
+        "- message_id：已发送的消息 ID（om_xxx 格式）\n"
+        "- user_ids：接收用户的 open_id 列表（ou_xxx 格式）\n"
+        "- urgent_type：通知类型\n"
+        "  - app：应用内通知（免费）\n"
+        "  - sms：短信通知（可能收费）\n"
+        "  - phone：电话通知（可能收费）\n\n"
+        "【注意】消息必须已发送才能加急。接收者必须是群成员。",
         handler=handler,
     )
 

@@ -111,7 +111,21 @@ def create_chat_tool(client: FeishuClient) -> FuncTool:
             },
             "required": ["action"],
         },
-        description="【飞书/Feishu/Lark群聊工具】当用户提到飞书群聊、群公告、创建群、添加成员、群管理时使用此工具。支持群公告读写、创建群聊、管理群成员。",
+        description="【飞书/Feishu/Lark群聊工具】当用户提到飞书群聊、群公告、创建群、添加成员、群管理时使用此工具。支持群公告读写、创建群聊、管理群成员。\n\n"
+        "Actions:\n"
+        "- get_announcement_info：获取群公告基本信息，需要 chat_id\n"
+        "- get_announcement：获取群公告完整内容，需要 chat_id\n"
+        "- list_announcement_blocks：列出群公告所有 Block，需要 chat_id\n"
+        "- get_announcement_block：获取群公告单个 Block，需要 chat_id、block_id\n"
+        "- write_announcement：写入群公告，需要 chat_id、content\n"
+        "- append_announcement：追加群公告内容，需要 chat_id、content\n"
+        "- update_announcement_block：更新群公告 Block，需要 chat_id、block_id、content\n"
+        "- create_chat：创建群聊，需要 name\n"
+        "- add_members：添加群成员，需要 chat_id、user_ids\n"
+        "- check_bot_in_chat：检查机器人是否在群中，需要 chat_id\n"
+        "- delete_chat：解散群聊，需要 chat_id\n"
+        "- create_session_chat：创建群聊并发送问候消息，需要 name、user_ids\n\n"
+        "【重要】chat_id 格式为 oc_xxx，user_ids 使用 open_id 格式（ou_xxx）。",
         handler=handler,
     )
 

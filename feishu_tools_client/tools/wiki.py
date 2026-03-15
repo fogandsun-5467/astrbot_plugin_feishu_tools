@@ -56,7 +56,16 @@ def create_wiki_tool(client: FeishuClient) -> FuncTool:
             },
             "required": ["action"],
         },
-        description="【飞书/Feishu/Lark知识库工具】当用户提到飞书知识库、Wiki、知识空间时使用此工具。支持浏览知识库空间、管理知识库节点。注意：知识库内容读写使用 feishu_doc 工具。",
+        description="【飞书/Feishu/Lark知识库工具】当用户提到飞书知识库、Wiki、知识空间时使用此工具。支持浏览知识库空间、管理知识库节点。\n\n"
+        "Actions:\n"
+        "- spaces：列出我有权限的知识库空间\n"
+        "- nodes：列出知识库节点，需要 space_id\n"
+        "- get：获取节点详情，需要 token\n"
+        "- create：创建知识库节点，需要 space_id、title\n"
+        "- move：移动节点，需要 space_id、token\n"
+        "- rename：重命名节点，需要 space_id、token、title\n\n"
+        "【重要】知识库内容读写请使用 feishu_doc 工具，传入 obj_token。\n"
+        "【obj_type】create 操作可选类型：docx（文档）、sheet（表格）、bitable（多维表格）、mindnote（思维导图）、slides（幻灯片）",
         handler=handler,
     )
 
