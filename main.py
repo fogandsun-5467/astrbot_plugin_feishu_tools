@@ -15,7 +15,6 @@ from feishu_tools_client.tools import (
     create_reaction_tool,
     create_task_tool,
     create_urgent_tool,
-    create_wiki_tool,
 )
 
 
@@ -72,7 +71,7 @@ class FeishuToolsPlugin(Star):
 
         enabled_tools = self.config.get(
             "enabled_tools",
-            ["message", "chat", "doc", "drive", "wiki", "task", "reaction", "perm", "urgent"],
+            ["message", "chat", "doc", "drive", "task", "reaction", "perm", "urgent"],
         )
 
         tool_factories = {
@@ -80,7 +79,6 @@ class FeishuToolsPlugin(Star):
             "chat": lambda: create_chat_tool(self.feishu_client),
             "doc": lambda: create_doc_tool(self.feishu_client),
             "drive": lambda: create_drive_tool(self.feishu_client),
-            "wiki": lambda: create_wiki_tool(self.feishu_client),
             "task": lambda: create_task_tool(self.feishu_client),
             "reaction": lambda: create_reaction_tool(self.feishu_client),
             "perm": lambda: create_perm_tool(self.feishu_client),

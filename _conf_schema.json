@@ -2,7 +2,7 @@
   "enabled_tools": {
     "description": "启用的工具列表",
     "type": "list",
-    "default": ["message", "chat", "doc", "drive", "wiki", "task", "reaction", "perm", "urgent"],
+    "default": ["message", "chat", "doc", "drive", "task", "reaction", "perm", "urgent"],
     "hint": "选择要启用的飞书工具，未启用的工具将不会注册到 LLM"
   },
   "message_tool": {
