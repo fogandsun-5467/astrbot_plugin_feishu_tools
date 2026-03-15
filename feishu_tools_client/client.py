@@ -1,9 +1,10 @@
-import asyncio
 import json
-import time
-from typing import Any
+from typing import Any, Dict, Optional
 
-import aiohttp
+from lark_oapi import AsyncClient
+from lark_oapi.api import Request, Response
+from lark_oapi.core import AccessTokenType
+from lark_oapi.core.exception import LarkException
 
 from astrbot import logger
 
@@ -26,112 +27,64 @@ class FeishuClient:
         self.app_id = app_id
         self.app_secret = app_secret
         self.domain = domain
-        self._tenant_access_token: str | None = None
-        self._token_expire_time: float = 0
-        self._session: aiohttp.ClientSession | None = None
-        self._lock = asyncio.Lock()
-
-    async def _get_session(self) -> aiohttp.ClientSession:
-        if self._session is None or self._session.closed:
-            self._session = aiohttp.ClientSession()
-        return self._session
+        self.client = AsyncClient(
+            app_id=app_id,
+            app_secret=app_secret,
+            access_token_type=AccessTokenType.TENANT,
+            domain=domain,
+        )
 
     async def close(self):
-        if self._session and not self._session.closed:
-            await self._session.close()
+        # lark-oapi 客户端不需要显式关闭
+        pass
 
     async def get_tenant_access_token(self) -> str:
-        async with self._lock:
-            if self._tenant_access_token and time.time() < self._token_expire_time - 60:
-                return self._tenant_access_token
-
-            url = f"{self.domain}/open-apis/auth/v3/tenant_access_token/internal"
-            session = await self._get_session()
-
-            async with session.post(
-                url,
-                json={"app_id": self.app_id, "app_secret": self.app_secret},
-            ) as resp:
-                data = await resp.json()
-
-            if data.get("code", 0) != 0:
-                raise FeishuAPIError(
-                    data.get("code", -1),
-                    data.get("msg", "Unknown error"),
-                    data.get("log_id", ""),
-                )
-
-            self._tenant_access_token = data.get("tenant_access_token", "")
-            self._token_expire_time = time.time() + data.get("expire", 7200)
-            return self._tenant_access_token
+        try:
+            token = await self.client.get_tenant_access_token()
+            return token
+        except LarkException as e:
+            raise FeishuAPIError(e.code, e.msg, e.log_id)
 
     async def request(
         self,
         method: str,
         path: str,
         *,
-        params: dict | None = None,
-        data: dict | None = None,
-        json_data: dict | None = None,
+        params: Optional[Dict] = None,
+        data: Optional[Dict] = None,
+        json_data: Optional[Dict] = None,
         retry_count: int = 3,
-    ) -> dict:
-        token = await self.get_tenant_access_token()
-        url = f"{self.domain}/open-apis/{path}"
-        session = await self._get_session()
-        headers = {
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json",
-        }
-
-        last_error = None
+    ) -> Dict:
         for attempt in range(retry_count):
             try:
-                async with session.request(
-                    method,
-                    url,
-                    headers=headers,
+                req = Request(
+                    method=method,
+                    path=path,
                     params=params,
-                    data=json.dumps(data) if data else None,
-                    json=json_data,
-                ) as resp:
-                    result = await resp.json()
-
-                code = result.get("code", 0)
-                if code == 0:
-                    return result
-
-                if code in (99991663, 99991664):
-                    self._tenant_access_token = None
-                    token = await self.get_tenant_access_token()
-                    headers["Authorization"] = f"Bearer {token}"
-                    continue
-
-                raise FeishuAPIError(
-                    code,
-                    result.get("msg", "Unknown error"),
-                    result.get("log_id", ""),
+                    body=data or json_data,
                 )
-
-            except aiohttp.ClientError as e:
-                last_error = e
+                resp = await self.client.request(req)
+                if resp.code != 0:
+                    raise FeishuAPIError(resp.code, resp.msg, resp.log_id)
+                return resp.data
+            except LarkException as e:
                 logger.warning(f"Feishu API request failed (attempt {attempt + 1}): {e}")
-                await asyncio.sleep(1)
+                if attempt == retry_count - 1:
+                    raise FeishuAPIError(e.code, e.msg, e.log_id)
 
-        raise last_error or FeishuAPIError(-1, "Request failed after retries")
-
-    async def get(self, path: str, params: dict | None = None) -> dict:
+    async def get(self, path: str, params: Optional[Dict] = None) -> Dict:
         return await self.request("GET", path, params=params)
 
-    async def post(self, path: str, data: dict | None = None, json_data: dict | None = None) -> dict:
+    async def post(self, path: str, data: Optional[Dict] = None, json_data: Optional[Dict] = None) -> Dict:
         return await self.request("POST", path, data=data, json_data=json_data)
 
-    async def put(self, path: str, data: dict | None = None) -> dict:
+    async def put(self, path: str, data: Optional[Dict] = None) -> Dict:
         return await self.request("PUT", path, data=data)
 
-    async def delete(self, path: str, params: dict | None = None) -> dict:
+    async def delete(self, path: str, params: Optional[Dict] = None) -> Dict:
         return await self.request("DELETE", path, params=params)
 
-    async def patch(self, path: str, data: dict | None = None) -> dict:
+    async def patch(self, path: str, data: Optional[Dict] = None) -> Dict:
         return await self.request("PATCH", path, data=data)
 
 
