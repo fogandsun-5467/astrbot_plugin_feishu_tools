@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import json
 from typing import Any
 
 from astrbot.core.provider.func_tool_manager import FuncTool
 
-from ..client import FeishuClient, extract_doc_token
+from ..client import FeishuClient, extract_doc_token, BLOCK_TYPE_NAMES, STRUCTURED_BLOCK_TYPES
 
 
 def create_doc_tool(client: FeishuClient) -> FuncTool:
@@ -36,7 +38,7 @@ def create_doc_tool(client: FeishuClient) -> FuncTool:
         }
 
         if action not in actions:
-            return {"error": f"Unknown action: {action}"}
+            return {"error": f"Unknown action: {action}. Available: {', '.join(actions.keys())}"}
 
         return await actions[action]()
 
@@ -62,46 +64,69 @@ def create_doc_tool(client: FeishuClient) -> FuncTool:
                         "create_comment",
                         "list_comment_replies",
                     ],
-                    "description": "Action to perform",
+                    "description": "操作类型",
                 },
-                "doc_token": {"type": "string", "description": "Document token (from URL or previous operations)"},
-                "title": {"type": "string", "description": "Document title for create operations"},
-                "content": {"type": "string", "description": "Content to write/append or comment text"},
-                "folder_token": {"type": "string", "description": "Parent folder token for create operations"},
-                "block_id": {"type": "string", "description": "Block ID for block operations"},
-                "comment_id": {"type": "string", "description": "Comment ID for comment operations"},
-                "page_token": {"type": "string", "description": "Pagination token"},
-                "page_size": {"type": "integer", "description": "Page size for list operations (default: 50)"},
+                "doc_token": {
+                    "type": "string",
+                    "description": "文档 token（可从 URL 中提取，或使用 create 操作返回的 token）",
+                },
+                "title": {
+                    "type": "string",
+                    "description": "文档标题，create 操作必填",
+                },
+                "content": {
+                    "type": "string",
+                    "description": "内容。write/append 操作填 Markdown 格式内容；create_comment 操作填评论文本",
+                },
+                "folder_token": {
+                    "type": "string",
+                    "description": "父文件夹 token，create 操作可选",
+                },
+                "block_id": {
+                    "type": "string",
+                    "description": "Block ID，用于 get_block/update_block/delete_block 操作",
+                },
+                "comment_id": {
+                    "type": "string",
+                    "description": "评论 ID，用于 get_comment/list_comment_replies 操作",
+                },
+                "page_token": {
+                    "type": "string",
+                    "description": "分页标记",
+                },
+                "page_size": {
+                    "type": "integer",
+                    "default": 50,
+                    "description": "每页数量（默认 50，最大 50）",
+                },
             },
             "required": ["action"],
         },
-        description="Feishu document read/write operations and comment management. Use when user mentions Feishu docs, cloud docs, docx links, or document comments.",
+        description="飞书文档读写工具。支持读取、写入、创建文档，以及 Block 和评论管理。\n\n"
+        "Actions:\n"
+        "- read：读取文档内容，返回纯文本和元信息\n"
+        "- write：覆盖写入文档内容（Markdown 格式）\n"
+        "- append：在文档末尾追加内容（Markdown 格式）\n"
+        "- create：创建新文档，返回 doc_token\n"
+        "- create_and_write：创建文档并写入内容（便捷操作）\n"
+        "- list_blocks：列出文档所有 Block\n"
+        "- get_block：获取单个 Block 详情\n"
+        "- update_block：更新 Block 内容\n"
+        "- delete_block：删除 Block\n"
+        "- list_comments：列出文档评论\n"
+        "- get_comment：获取单条评论\n"
+        "- create_comment：创建评论\n"
+        "- list_comment_replies：列出评论回复\n\n"
+        "【重要】doc_token 可以是：\n"
+        "1. 文档 token（如 DoxcnXxx）\n"
+        "2. 完整 URL（会自动提取 token）\n\n"
+        "【内容格式】write/append 操作支持 Markdown 格式：\n"
+        "- # 标题1  → 一级标题\n"
+        "- ## 标题2 → 二级标题\n"
+        "- - 列表项 → 无序列表\n"
+        "- 普通文本 → 段落",
         handler=handler,
     )
-
-
-BLOCK_TYPE_NAMES: dict[int, str] = {
-    1: "Page",
-    2: "Text",
-    3: "Heading1",
-    4: "Heading2",
-    5: "Heading3",
-    12: "Bullet",
-    13: "Ordered",
-    14: "Code",
-    15: "Quote",
-    17: "Todo",
-    18: "Bitable",
-    21: "Diagram",
-    22: "Divider",
-    23: "File",
-    27: "Image",
-    30: "Sheet",
-    31: "Table",
-    32: "TableCell",
-}
-
-STRUCTURED_BLOCK_TYPES = {14, 18, 21, 23, 27, 30, 31, 32}
 
 
 async def _read_doc(client: FeishuClient, doc_token: str | None) -> dict[str, Any]:
@@ -114,9 +139,10 @@ async def _read_doc(client: FeishuClient, doc_token: str | None) -> dict[str, An
         if token.startswith("doccn"):
             result = await client.get(f"doc/v2/{token}/raw_content")
             return {
+                "ok": True,
                 "content": result.get("data", {}).get("content", ""),
                 "format": "doc",
-                "hint": "Legacy document format. Only plain text content available.",
+                "hint": "旧版文档格式，仅返回纯文本内容",
             }
 
         content_result = await client.get(f"docx/v1/documents/{token}/raw_content")
@@ -134,7 +160,8 @@ async def _read_doc(client: FeishuClient, doc_token: str | None) -> dict[str, An
             if block_type in STRUCTURED_BLOCK_TYPES and name not in structured_types:
                 structured_types.append(name)
 
-        response = {
+        response: dict[str, Any] = {
+            "ok": True,
             "title": info_result.get("data", {}).get("document", {}).get("title", ""),
             "content": content_result.get("data", {}).get("content", ""),
             "revision_id": info_result.get("data", {}).get("document", {}).get("revision_id", ""),
@@ -143,7 +170,7 @@ async def _read_doc(client: FeishuClient, doc_token: str | None) -> dict[str, An
         }
 
         if structured_types:
-            response["hint"] = f"This document contains {', '.join(structured_types)} which are NOT included in plain text. Use action: 'list_blocks' to get full content."
+            response["hint"] = f"文档包含 {', '.join(structured_types)} 等结构化内容，纯文本不包含这些内容。使用 list_blocks 获取完整内容。"
 
         return response
     except Exception as e:
@@ -162,7 +189,7 @@ async def _write_doc(client: FeishuClient, doc_token: str | None, content: str |
             f"docx/v1/documents/{token}/blocks",
             data={"requests": [{"request_type": "ReplaceAllRequest", "replace_all": {"blocks": blocks}}]},
         )
-        return {"success": True, **result.get("data", {})}
+        return {"ok": True, "revision_id": result.get("data", {}).get("revision_id", "")}
     except Exception as e:
         return {"error": str(e)}
 
@@ -186,7 +213,7 @@ async def _append_doc(client: FeishuClient, doc_token: str | None, content: str 
             f"docx/v1/documents/{token}/blocks/{page_block['block_id']}/children",
             data={"children": new_blocks, "index": len(page_block.get("children", []))},
         )
-        return {"success": True, **result.get("data", {})}
+        return {"ok": True, "revision_id": result.get("data", {}).get("revision_id", "")}
     except Exception as e:
         return {"error": str(e)}
 
@@ -201,7 +228,13 @@ async def _create_doc(client: FeishuClient, title: str | None, folder_token: str
             data["folder_token"] = folder_token
 
         result = await client.post("docx/v1/documents", data=data)
-        return {"success": True, "doc_token": result.get("data", {}).get("document", {}).get("document_id"), **result.get("data", {})}
+        doc = result.get("data", {}).get("document", {})
+        return {
+            "ok": True,
+            "doc_token": doc.get("document_id", ""),
+            "title": doc.get("title", ""),
+            "revision_id": doc.get("revision_id", ""),
+        }
     except Exception as e:
         return {"error": str(e)}
 
@@ -221,9 +254,9 @@ async def _create_and_write_doc(client: FeishuClient, title: str | None, content
 
         write_result = await _write_doc(client, doc_token, content)
         if "error" in write_result:
-            return {"success": True, "doc_token": doc_token, "write_error": write_result.get("error"), **create_result}
+            return {"ok": True, "doc_token": doc_token, "write_error": write_result.get("error"), **create_result}
 
-        return {"success": True, "doc_token": doc_token, **create_result}
+        return {"ok": True, "doc_token": doc_token, **create_result}
     except Exception as e:
         return {"error": str(e)}
 
@@ -236,7 +269,21 @@ async def _list_blocks(client: FeishuClient, doc_token: str | None) -> dict[str,
 
     try:
         result = await client.get(f"docx/v1/documents/{token}/blocks")
-        return {"blocks": result.get("data", {}).get("items", [])}
+        blocks = result.get("data", {}).get("items", [])
+
+        formatted_blocks = []
+        for b in blocks:
+            block_type = b.get("block_type", 0)
+            formatted_blocks.append({
+                "block_id": b.get("block_id", ""),
+                "block_type": block_type,
+                "block_type_name": BLOCK_TYPE_NAMES.get(block_type, f"type_{block_type}"),
+                "parent_id": b.get("parent_id", ""),
+                "children": b.get("children", []),
+                "text": _extract_block_text(b),
+            })
+
+        return {"ok": True, "blocks": formatted_blocks, "total": len(formatted_blocks)}
     except Exception as e:
         return {"error": str(e)}
 
@@ -249,7 +296,22 @@ async def _get_block(client: FeishuClient, doc_token: str | None, block_id: str 
 
     try:
         result = await client.get(f"docx/v1/documents/{token}/blocks/{block_id}")
-        return {"block": result.get("data", {}).get("block")}
+        block = result.get("data", {}).get("block")
+        if not block:
+            return {"error": "Block not found"}
+
+        block_type = block.get("block_type", 0)
+        return {
+            "ok": True,
+            "block": {
+                "block_id": block.get("block_id", ""),
+                "block_type": block_type,
+                "block_type_name": BLOCK_TYPE_NAMES.get(block_type, f"type_{block_type}"),
+                "parent_id": block.get("parent_id", ""),
+                "children": block.get("children", []),
+                "text": _extract_block_text(block),
+            },
+        }
     except Exception as e:
         return {"error": str(e)}
 
@@ -265,7 +327,7 @@ async def _update_block(client: FeishuClient, doc_token: str | None, block_id: s
             f"docx/v1/documents/{token}/blocks/{block_id}",
             data={"update_text_elements": {"elements": [{"text_run": {"content": content}}]}},
         )
-        return {"success": True, "block_id": block_id}
+        return {"ok": True, "block_id": block_id, "revision_id": result.get("data", {}).get("revision_id", "")}
     except Exception as e:
         return {"error": str(e)}
 
@@ -288,7 +350,7 @@ async def _delete_block(client: FeishuClient, doc_token: str | None, block_id: s
             return {"error": "Block not found"}
 
         await client.delete(f"docx/v1/documents/{token}/blocks/{parent_id}/children", params={"start_index": index, "end_index": index + 1})
-        return {"success": True, "deleted_block_id": block_id}
+        return {"ok": True, "deleted_block_id": block_id}
     except Exception as e:
         return {"error": str(e)}
 
@@ -306,6 +368,7 @@ async def _list_comments(client: FeishuClient, doc_token: str | None, page_token
 
         result = await client.get(f"drive/v1/files/{token}/comments", params=params)
         return {
+            "ok": True,
             "comments": result.get("data", {}).get("items", []),
             "page_token": result.get("data", {}).get("page_token"),
             "has_more": result.get("data", {}).get("has_more", False),
@@ -322,7 +385,7 @@ async def _get_comment(client: FeishuClient, doc_token: str | None, comment_id: 
 
     try:
         result = await client.get(f"drive/v1/files/{token}/comments/{comment_id}", params={"file_type": "docx"})
-        return {"comment": result.get("data", {})}
+        return {"ok": True, "comment": result.get("data", {})}
     except Exception as e:
         return {"error": str(e)}
 
@@ -343,7 +406,11 @@ async def _create_comment(client: FeishuClient, doc_token: str | None, content: 
             },
             json_data={"file_type": "docx"},
         )
-        return {"comment_id": result.get("data", {}).get("comment_id"), "comment": result.get("data", {})}
+        return {
+            "ok": True,
+            "comment_id": result.get("data", {}).get("comment_id", ""),
+            "comment": result.get("data", {}),
+        }
     except Exception as e:
         return {"error": str(e)}
 
@@ -361,6 +428,7 @@ async def _list_comment_replies(client: FeishuClient, doc_token: str | None, com
 
         result = await client.get(f"drive/v1/files/{token}/comments/{comment_id}/replies", params=params)
         return {
+            "ok": True,
             "replies": result.get("data", {}).get("items", []),
             "page_token": result.get("data", {}).get("page_token"),
             "has_more": result.get("data", {}).get("has_more", False),
@@ -383,7 +451,7 @@ def _markdown_to_blocks(content: str) -> list[dict]:
             blocks.append({"block_type": 4, "heading2": {"elements": [{"text_run": {"content": line[3:]}}]}})
         elif line.startswith("### "):
             blocks.append({"block_type": 5, "heading3": {"elements": [{"text_run": {"content": line[4:]}}]}})
-        elif line.startswith("- "):
+        elif line.startswith("- ") or line.startswith("* "):
             blocks.append({"block_type": 12, "bullet": {"elements": [{"text_run": {"content": line[2:]}}]}})
         elif line.startswith("```"):
             continue
@@ -391,3 +459,27 @@ def _markdown_to_blocks(content: str) -> list[dict]:
             blocks.append({"block_type": 2, "text": {"elements": [{"text_run": {"content": line}}]}})
 
     return blocks
+
+
+def _extract_block_text(block: dict) -> str:
+    block_type = block.get("block_type", 0)
+
+    text_extractors = {
+        2: lambda b: b.get("text", {}).get("elements", []),
+        3: lambda b: b.get("heading1", {}).get("elements", []),
+        4: lambda b: b.get("heading2", {}).get("elements", []),
+        5: lambda b: b.get("heading3", {}).get("elements", []),
+        12: lambda b: b.get("bullet", {}).get("elements", []),
+        13: lambda b: b.get("ordered", {}).get("elements", []),
+        14: lambda b: b.get("code", {}).get("elements", []),
+        15: lambda b: b.get("quote", {}).get("elements", []),
+        17: lambda b: b.get("todo", {}).get("elements", []),
+    }
+
+    elements = text_extractors.get(block_type, lambda b: [])(block)
+    texts = []
+    for el in elements:
+        if "text_run" in el:
+            texts.append(el["text_run"].get("content", ""))
+
+    return "".join(texts)

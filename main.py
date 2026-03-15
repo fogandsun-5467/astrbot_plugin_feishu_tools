@@ -7,12 +7,15 @@ from astrbot.core.provider.func_tool_manager import FuncTool
 
 from feishu_tools_client import FeishuClient
 from feishu_tools_client.tools import (
+    create_bitable_tool,
+    create_calendar_tool,
     create_chat_tool,
     create_doc_tool,
     create_drive_tool,
     create_message_tool,
     create_perm_tool,
     create_reaction_tool,
+    create_sheets_tool,
     create_task_tool,
     create_urgent_tool,
 )
@@ -71,7 +74,19 @@ class FeishuToolsPlugin(Star):
 
         enabled_tools = self.config.get(
             "enabled_tools",
-            ["message", "chat", "doc", "drive", "task", "reaction", "perm", "urgent"],
+            [
+                "message",
+                "chat",
+                "doc",
+                "drive",
+                "task",
+                "bitable",
+                "calendar",
+                "sheets",
+                "reaction",
+                "perm",
+                "urgent",
+            ],
         )
 
         tool_factories = {
@@ -80,6 +95,9 @@ class FeishuToolsPlugin(Star):
             "doc": lambda: create_doc_tool(self.feishu_client),
             "drive": lambda: create_drive_tool(self.feishu_client),
             "task": lambda: create_task_tool(self.feishu_client),
+            "bitable": lambda: create_bitable_tool(self.feishu_client),
+            "calendar": lambda: create_calendar_tool(self.feishu_client),
+            "sheets": lambda: create_sheets_tool(self.feishu_client),
             "reaction": lambda: create_reaction_tool(self.feishu_client),
             "perm": lambda: create_perm_tool(self.feishu_client),
             "urgent": lambda: create_urgent_tool(self.feishu_client),
