@@ -3,4 +3,4 @@ display_name: 飞书工具集
 desc: 为飞书机器人提供文档、云盘、任务、群聊管理等高级功能的 LLM 工具集
 version: v1.0.0
 author: AstrBot
-repo: https://github.com/YOUR_USERNAME/astrbot_plugin_feishu_tools
+repo: https://github.com/fogandsun-5467/astrbot_plugin_feishu_tools
