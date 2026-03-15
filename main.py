@@ -35,9 +35,14 @@ class FeishuToolsPlugin(Star):
         self.config = config
         self.feishu_client: FeishuClient | None = None
         self._registered_tools: list[FuncTool] = []
+        self._init_done = False
 
-    @filter.platform_adapter_type(filter.PlatformAdapterType.LARK)
-    async def initialize(self):
+    async def _init_feishu_client(self):
+        if self._init_done:
+            return
+
+        self._init_done = True
+
         lark_adapter = None
         for platform in self.context.platform_manager.platform_insts:
             if platform.meta().name == "lark":
@@ -67,6 +72,10 @@ class FeishuToolsPlugin(Star):
 
         except Exception as e:
             logger.error(f"[FeishuTools] 初始化飞书客户端失败: {e}")
+
+    @filter.on_astrbot_loaded()
+    async def on_astrbot_loaded(self):
+        await self._init_feishu_client()
 
     async def _register_tools(self):
         if not self.feishu_client:
