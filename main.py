@@ -5,8 +5,8 @@ from astrbot.api.event import filter, AstrMessageEvent
 from astrbot.api.star import Context, Star, register
 from astrbot.core.provider.func_tool_manager import FuncTool
 
-from feishu_tools_client import FeishuClient
-from feishu_tools_client.tools import (
+from .feishu_tools_client import FeishuClient
+from .feishu_tools_client.tools import (
     create_bitable_tool,
     create_calendar_tool,
     create_chat_tool,
