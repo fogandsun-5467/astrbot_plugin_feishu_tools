@@ -1,6 +1,22 @@
 name: astrbot_plugin_feishu_tools
 display_name: 飞书工具集
-desc: 为飞书机器人提供文档、云盘、任务、群聊管理等高级功能的 LLM 工具集
-version: v1.0.0
+desc: AI驱动的飞书工具插件，支持任务、日历、多维表格、文档、云盘等功能的自然语言操作
+help: |
+  提供多个LLM函数工具，让AI通过自然语言操作飞书功能
+  
+  核心工具:
+  - feishu_task: 任务管理（创建/查询/更新任务）
+  - feishu_calendar: 日历管理（创建/查询日程）
+  - feishu_bitable: 多维表格（记录增删改查）
+  - feishu_doc: 文档操作（创建/读取文档）
+  - feishu_drive: 云盘管理（文件/文件夹操作）
+  - feishu_sheets: 电子表格（读写单元格）
+  - feishu_wiki: 知识库（浏览空间/节点）
+  - feishu_chat: 群聊管理（公告/成员管理）
+  - feishu_message: 消息管理（发送/读取消息）
+  - feishu_user: 用户查询（搜索/获取用户信息）
+  
+  使用命令: /feishu_tools 查看工具状态
+version: v2.0.0
 author: AstrBot
-repo: https://github.com/fogandsun-5467/astrbot_plugin_feishu_tools
+repo: https://github.com/AstrBotDevs/astrbot_plugin_feishu_tools
